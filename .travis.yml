@@ -3,6 +3,7 @@ language: python
 python: 2.7
 
 install:
+  - sudo apt-get install python-qt4
   - "pip install -r client/requirements.txt"
   - "pip install -r server/requirements.txt"
   - pip install coveralls
