@@ -9,6 +9,7 @@
 from watchdog.observers.polling import PollingObserver as Observer
 from watchdog.events import FileSystemEventHandler
 from requests.auth import HTTPBasicAuth
+from create_user_popup import *
 import requests
 import hashlib
 import shutil
@@ -186,29 +187,6 @@ class ServerCommunicator(object):
         elif r.status_code == 201:
             self.snapshot_manager.save_snapshot(r.text)
 
-    def create_user(self, username, password):
-        
-        error_log = "User creation error"
-        success_log = "user created!"
-
-        server_url = "{}/create_user".format(self.server_url)
-
-        request = {
-            "url": server_url,
-            "data": {
-                "user": username,
-                "psw": password
-            }
-        }
-
-        response = self._try_request(requests.post, success_log, error_log, **request).status_code
-        if response == 201:
-            print "created!"
-        elif response == 409:
-            print "user already exists"
-        else:
-            print "bad request"
-
 
 class FileSystemOperator(object):
 
@@ -315,15 +293,22 @@ def load_config():
             config = json.load(config_file)
         return config, False
     except IOError:
+        #open a popup sign in gui
+        if Login().exec_() == QtGui.QDialog.Accepted:
+            window = Window()
+            window.show()
         dir_path = os.path.join(os.path.expanduser("~"), "RawBox")
         try:
             os.makedirs(dir_path)
         except OSError:
             pass
-            
-        # TODO: ask to cmd_manager to create a new user
-        user = "Alalah@tropos.fo"
-        psw = "pokpsd"
+        
+        with open('temp_conf.conf') as f:
+            user_info = json.load(f)
+        os.remove('temp_conf.conf')
+
+        user = user_info['username']
+        psw = user_info['password']
 
         config = {
             "server_url" : "http://{}:{}/{}".format(
@@ -658,8 +643,6 @@ def main():
     server_com.setExecuter(executer)
     observer = Observer()
     observer.schedule(event_handler, config['dir_path'], recursive=True)
-    if is_new:
-        server_com.create_user(config['username'], config['password'])
     observer.start()
     try:
         while True:

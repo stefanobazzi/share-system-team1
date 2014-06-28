@@ -1,8 +1,9 @@
+from watchdog.observers.polling import PollingObserver as Observer
 from client_daemon import DirSnapshotManager
 from client_daemon import DirectoryEventHandler
 from client_daemon import ServerCommunicator
 from client_daemon import FileSystemOperator
-from watchdog.observers.polling import PollingObserver as Observer
+from create_user_popup import create_user
 import httpretty
 import unittest
 import requests
@@ -10,9 +11,9 @@ import hashlib
 import base64
 import shutil
 import json
+import time
 import sys
 import os
-import time
 
 class TestEnvironment(object):
 
@@ -120,7 +121,7 @@ class ServerCommunicatorTest(unittest.TestCase):
             self.dir,
             snapshot_manager)
         
-    def tearDown(self):
+    def tearDown(load_config):
         httpretty.disable()
         httpretty.reset()
     
@@ -230,16 +231,15 @@ class ServerCommunicatorTest(unittest.TestCase):
     def test_create_user(self):
         test_username = "test_username"
         test_password = "test_password"
-        mock_auth_user = ":".join([self.username, self.password])
-        self.server_comm.create_user(test_username, test_password)
-        encoded = httpretty.last_request().headers['authorization'].split()[1]
-        authorization_decoded = base64.decodestring(encoded)
+        mock_body = {u'user': [u'test_username'], u'psw': [u'test_password']}
+        create_user(test_username, test_password)
         path = httpretty.last_request().path
         host = httpretty.last_request().headers['host']
         method = httpretty.last_request().method
+        body = httpretty.last_request().parsed_body
 
-        #check if authorization are equal
-        self.assertEqual(authorization_decoded, mock_auth_user)
+        #check if body is equal
+        self.assertEqual(body, mock_body)
         #check if url and host are equal
         self.assertEqual(path, '/API/v1/create_user')
         self.assertEqual(host, '127.0.0.1:5000')
