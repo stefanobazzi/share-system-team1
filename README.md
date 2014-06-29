@@ -12,6 +12,8 @@ or
 
     easy_install install 'requirements.txt'
 
+install also pyqt4
+
 to run gui run rawbox.py inside GUI folder (WORK IN PROGRESS)
 
     python rawbox.py
