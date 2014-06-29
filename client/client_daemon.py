@@ -291,7 +291,7 @@ def load_config():
     try:
         with open('config.json', 'r') as config_file:
             config = json.load(config_file)
-        return config, False
+        return config
     except IOError:
         #open a popup sign in gui
         if Login().exec_() == QtGui.QDialog.Accepted:
@@ -327,7 +327,7 @@ def load_config():
             json.dump({"timestamp": 0, "snapshot": ""}, snapshot_file)
         with open('config.json', 'w') as config_file:
             json.dump(config, config_file)
-        return config, True
+        return config
 
 
 class DirectoryEventHandler(FileSystemEventHandler):
@@ -627,7 +627,7 @@ class CommandExecuter(object):
 
 
 def main():
-    config , is_new = load_config()
+    config = load_config()
     snapshot_manager = DirSnapshotManager(config['dir_path'], config['snapshot_file_path'])
 
     server_com = ServerCommunicator(
