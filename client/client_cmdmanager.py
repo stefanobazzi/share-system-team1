@@ -24,38 +24,6 @@ class RawBoxExecuter(object):
     def __init__(self, comm_sock):
         self.comm_sock = comm_sock
 
-    def _create_user(self, username=None):
-        """create user if not exists"""
-        command_type = 'create_user'
-
-        if not username:
-            username = take_input('insert your user name: ')
-        else:
-            username = " ".join(username)
-
-        password = take_input('insert your password: ', password = True)
-        rpt_password = take_input('Repeat your password: ', password = True)
-        while password != rpt_password:
-            Message('WARNING', 'password not matched')
-            password = take_input('insert your password: ', password = True)
-            rpt_password = take_input('Repeat your password: ', password = True)
-
-        email_regex = re.compile('[^@]+@[^@]+\.[^@]+')
-        email = take_input('insert your user email: ')
-        
-        while not email_regex.match(email):
-            Message('WARNING', 'invalid email')
-            email = take_input('insert your user email: ')
-
-        param = {
-                'user': username,
-                'psw': password,
-                'email': email
-            }
-
-        self.comm_sock.send_message(command_type, param)
-        self.print_response(self.comm_sock.read_message())
-
     def _create_group(self, *args):
         """create group/s"""
 
@@ -132,14 +100,12 @@ class RawBoxCmd(cmd.Cmd):
 
     def do_create(self, line):
         """
-        create user <name>  (create a new RawBox user)
         create group <name> (create a new shareable folder with your friends)
         """
         if line:
             command = line.split()[0]
             arguments = line.split()[1:]
             {
-                'user': self.executer._create_user,
                 'group': self.executer._create_group,
             }.get(command, self.error)(arguments)
         else:
