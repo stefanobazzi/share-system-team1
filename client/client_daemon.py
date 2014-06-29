@@ -302,9 +302,12 @@ def load_config():
             os.makedirs(dir_path)
         except OSError:
             pass
-        
-        with open('temp_conf.conf') as f:
-            user_info = json.load(f)
+
+        try:
+            with open('temp_conf.conf') as f:
+                user_info = json.load(f)
+        except IOError:
+            sys.exit()
         os.remove('temp_conf.conf')
 
         user = user_info['username']
