@@ -92,30 +92,6 @@ class RawBoxExecuter(object):
         self.comm_sock.send_message(command_type, param)
         self.print_response(self.comm_sock.read_message())
 
-    def _add_user(self, *args):
-        """add user/s to a group """
-        command_type = 'add_to_group'
-        args = args[0]
-        users = args[:-1]
-        try:
-            group = args[-1].split("group=")[1]
-            if group.strip() == "":
-                raise IndexError
-        except IndexError:
-            Message('WARNING', '\nyou must specify a group for example \
-                add user marco luigi group=your_group')
-            return False
-
-        for user in users:
-            #call socket message
-            print "add user ", user, " to group ", group
-            param = {
-                'user': user,
-                'group': group,
-            }
-            self.comm_sock.send_message(command_type, param)
-            self.print_response(self.comm_sock.read_message())
-
     def print_response(self, response):
         ''' print response from the daemon.
             the response is a dictionary as:
