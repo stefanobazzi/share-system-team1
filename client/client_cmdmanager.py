@@ -375,8 +375,8 @@ class RawBoxCmd(cmd.Cmd):
         if line:
             self.error("Delete command don't takes parameters")
         else:
-            if take_input("Are you sure to delete your account?"
-                          "[yes/no] ") == "yes":
+            if (take_input("Are you sure to delete your account?"
+                          "[yes/no] ")).lower() in ['yes', 'y']:
                 self.executer._delete_user()
 
     def do_add_share(self, line):
